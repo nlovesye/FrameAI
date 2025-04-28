@@ -20,12 +20,6 @@ const pwaOptions: PWAConfig = {
   register: true,
   skipWaiting: true,
   disable: process.env.NODE_ENV === "development",
-  ...(isGitHubPages
-    ? {
-        basePath: "/FrameAI", // 必须加
-        publicExcludes: ["/FrameAI/**/!(_next)/**"], // 避免重复缓存
-      }
-    : {}),
   runtimeCaching: [
     {
       urlPattern: /^https?.*/,
