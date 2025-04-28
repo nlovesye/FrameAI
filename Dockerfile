@@ -29,6 +29,9 @@ COPY --from=builder /home/app/package*.json ./
 COPY --from=builder /home/app/.next /home/app/.next
 COPY --from=builder /home/app/public /home/app/public
 
+# 安装生产依赖
+RUN npm install --production
+
 # ENV NODE_ENV prod
 
 EXPOSE 3000
