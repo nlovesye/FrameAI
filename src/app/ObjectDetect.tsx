@@ -150,25 +150,19 @@ export default function ObjectDetect() {
       predictions.forEach((prediction) => {
         const [x, y, width, height] = prediction.bbox;
 
-        // 计算物体框的位置和大小
-        const left = x * canvas.width;
-        const top = y * canvas.height;
-        const right = (x + width) * canvas.width;
-        const bottom = (y + height) * canvas.height;
-
         // 获取中文标签，通过 classMap 映射
         const className = classMap[prediction.class] || prediction.class;
 
         ctx.strokeStyle = "#00FFFF";
         ctx.lineWidth = 2;
-        ctx.strokeRect(left, top, right - left, bottom - top); // 绘制框
+        ctx.strokeRect(x, y, width, height);
 
         ctx.font = "16px Arial";
         ctx.fillStyle = "#00FFFF";
         ctx.fillText(
           `${className} (${(prediction.score * 100).toFixed(1)}%)`,
-          left,
-          top > 10 ? top - 5 : 10
+          x,
+          y > 10 ? y - 5 : 10
         );
       });
     },
@@ -188,29 +182,48 @@ export default function ObjectDetect() {
   }, [facingMode, startCamera, stopCamera]);
 
   useEffect(() => {
-    if (!model) return;
-
-    let animationId: number;
-    let frameCount = 0;
-
-    const detectFrame = async () => {
-      if (!videoRef.current) return;
-
-      // 每隔 3-5 帧进行一次识别
-      if (frameCount % 3 === 0) {
-        const predictions = await model.detect(videoRef.current);
-        drawPredictions(predictions);
+    // 等待视频的宽度和高度不为零
+    const waitForVideo = () => {
+      if (videoRef.current) {
+        if (
+          videoRef.current.videoWidth > 0 &&
+          videoRef.current.videoHeight > 0
+        ) {
+          return true;
+        }
       }
-
-      frameCount++;
-      animationId = requestAnimationFrame(detectFrame);
+      return false;
     };
 
-    detectFrame();
+    const detectFrameIfReady = async () => {
+      if (model && videoRef.current && waitForVideo()) {
+        let animationId: number;
+        let frameCount = 0;
 
-    return () => {
-      cancelAnimationFrame(animationId);
+        const detectFrame = async () => {
+          if (!videoRef.current || !waitForVideo()) return;
+
+          // 每隔 3-5 帧进行一次识别
+          if (frameCount % 3 === 0) {
+            const predictions = await model.detect(videoRef.current);
+            drawPredictions(predictions);
+          }
+
+          frameCount++;
+          animationId = requestAnimationFrame(detectFrame);
+        };
+
+        detectFrame();
+
+        return () => {
+          cancelAnimationFrame(animationId);
+        };
+      } else {
+        setTimeout(detectFrameIfReady, 100); // 如果视频尺寸为 0，延迟再试
+      }
     };
+
+    detectFrameIfReady();
   }, [model, drawPredictions]);
 
   const toggleCamera = () => {
@@ -228,10 +241,10 @@ export default function ObjectDetect() {
         切换摄像头
       </Button>
 
-      <div className="relative w-full max-w-2xl aspect-video rounded-xl overflow-hidden shadow-lg border border-gray-200">
+      <div className="relative w-full max-w-2xl rounded-xl overflow-hidden shadow-lg border border-gray-200 mt-3">
         <video
           ref={videoRef}
-          style={{ width: "100%", height: "auto" }}
+          className="w-full h-auto"
           muted
           autoPlay
           playsInline
