@@ -2,6 +2,7 @@ import type { NextConfig } from "next";
 import withPWA from "next-pwa";
 
 const nextConfig: NextConfig = {
+  exportTrailingSlash: true, // 如果你需要 /page/ 类型的 URL
   // reactStrictMode: true,
   // 其他 Next.js 配置项
 };
