@@ -1,17 +1,25 @@
 import type { NextConfig } from "next";
-import withPWA from "next-pwa";
+import withPWA, { PWAConfig } from "next-pwa";
 
-const nextConfig: NextConfig = {
-  reactStrictMode: true, // 可选：开启严格模式以帮助开发
-  trailingSlash: true, // 配置 Next.js 输出的路径末尾是否加上斜杠
-  // 其他 Next.js 配置项
-};
+const isVercel = !!process.env.VERCEL; // Vercel 平台会自动注入
+// const isGitHubPages = process.env.DEPLOY_ENV === "GH_PAGES"; // 我们在 Action 里设置
 
-export default withPWA({
-  ...nextConfig,
-  dest: "public", // 设置 Service Worker 存放的位置
-  register: true, // 自动注册 Service Worker
-  skipWaiting: true, // 跳过等待阶段
+// 如果是 GH_PAGES，则给出静态导出相关配置
+const staticExportConfig: Partial<NextConfig> = !isVercel
+  ? {
+      output: "export",
+      trailingSlash: true,
+      basePath: "/FrameAI",
+      assetPrefix: "/FrameAI/",
+    }
+  : {};
+
+// 1. 定义 PWA 插件的配置
+const pwaOptions: PWAConfig = {
+  dest: "public",
+  register: true,
+  skipWaiting: true,
+  disable: process.env.NODE_ENV === "development",
   runtimeCaching: [
     {
       urlPattern: /^https?.*/,
@@ -20,9 +28,24 @@ export default withPWA({
         cacheName: "my-cache",
         expiration: {
           maxEntries: 100,
-          maxAgeSeconds: 60 * 60 * 24, // 1 天的缓存
+          maxAgeSeconds: 60 * 60 * 24,
         },
       },
     },
   ],
-});
+};
+
+// 2. 调用 withPWA 拿到 HOC
+const withPWAConfig = withPWA(pwaOptions);
+
+// 3. 定义纯 Next.js 配置
+const nextConfig: NextConfig = {
+  reactStrictMode: true,
+  trailingSlash: true,
+  ...staticExportConfig,
+};
+
+// 4. 导出最终配置
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+export default withPWAConfig(nextConfig);
