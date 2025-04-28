@@ -10,7 +10,7 @@ const staticExportConfig: Partial<NextConfig> = isGitHubPages
       output: "export",
       trailingSlash: true,
       basePath: "/FrameAI",
-      assetPrefix: "/FrameAI/",
+      assetPrefix: "/FrameAI",
     }
   : {};
 
