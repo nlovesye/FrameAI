@@ -16,11 +16,14 @@ jobs:
     steps:
       # 获取仓库代码
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
+        with:
+          persist-credentials: true # 一定要放在 with: 下
+          fetch-depth: 0 # 拉全历史，方便 gh-pages 推送
 
       # 设置 Node.js 环境
       - name: Set up Node.js
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: "18" # 选择你使用的 Node.js 版本
 
