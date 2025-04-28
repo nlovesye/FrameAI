@@ -1,11 +1,12 @@
 import type { NextConfig } from "next";
 import withPWA, { PWAConfig } from "next-pwa";
 
-const isVercel = !!process.env.VERCEL; // Vercel 平台会自动注入
-// const isGitHubPages = process.env.DEPLOY_ENV === "GH_PAGES"; // 我们在 Action 里设置
+// const isVercel = !!process.env.VERCEL; // Vercel 平台会自动注入
+const isGitHubPages = process.env.DEPLOY_ENV === "GH_PAGES"; // 我们在 Action 里设置
+console.log("🚀 ~ isGitHubPages:", isGitHubPages);
 
 // 如果是 GH_PAGES，则给出静态导出相关配置
-const staticExportConfig: Partial<NextConfig> = !isVercel
+const staticExportConfig: Partial<NextConfig> = isGitHubPages
   ? {
       output: "export",
       trailingSlash: true,
