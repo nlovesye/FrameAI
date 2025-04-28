@@ -41,7 +41,6 @@ const withPWAConfig = withPWA(pwaOptions);
 // 3. 定义纯 Next.js 配置
 const nextConfig: NextConfig = {
   reactStrictMode: true,
-  trailingSlash: true,
   ...staticExportConfig,
 };
 

@@ -3,7 +3,7 @@ name: Deploy Next.js to GitHub Pages
 on:
   push:
     branches:
-      - master # 触发部署的分支（如果你使用 main 分支）
+      - master # 触发部署的分支
 
 jobs:
   build:
