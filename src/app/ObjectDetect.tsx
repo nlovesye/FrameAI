@@ -141,6 +141,7 @@ export default function ObjectDetect() {
       const ctx = canvas.getContext("2d");
       if (!ctx) return;
 
+      // 确保画布的尺寸与视频一致
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
 
@@ -149,19 +150,25 @@ export default function ObjectDetect() {
       predictions.forEach((prediction) => {
         const [x, y, width, height] = prediction.bbox;
 
+        // 计算物体框的位置和大小
+        const left = x * canvas.width;
+        const top = y * canvas.height;
+        const right = (x + width) * canvas.width;
+        const bottom = (y + height) * canvas.height;
+
         // 获取中文标签，通过 classMap 映射
         const className = classMap[prediction.class] || prediction.class;
 
         ctx.strokeStyle = "#00FFFF";
         ctx.lineWidth = 2;
-        ctx.strokeRect(x, y, width, height);
+        ctx.strokeRect(left, top, right - left, bottom - top); // 绘制框
 
         ctx.font = "16px Arial";
         ctx.fillStyle = "#00FFFF";
         ctx.fillText(
           `${className} (${(prediction.score * 100).toFixed(1)}%)`,
-          x,
-          y > 10 ? y - 5 : 10
+          left,
+          top > 10 ? top - 5 : 10
         );
       });
     },
@@ -224,7 +231,7 @@ export default function ObjectDetect() {
       <div className="relative w-full max-w-2xl aspect-video rounded-xl overflow-hidden shadow-lg border border-gray-200">
         <video
           ref={videoRef}
-          className="w-full h-full object-cover"
+          style={{ width: "100%", height: "auto" }}
           muted
           autoPlay
           playsInline
