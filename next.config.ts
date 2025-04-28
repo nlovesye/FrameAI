@@ -2,7 +2,6 @@ import type { NextConfig } from "next";
 import withPWA from "next-pwa";
 
 const nextConfig: NextConfig = {
-  output: "standalone",
   // reactStrictMode: true,
   // 其他 Next.js 配置项
 };
