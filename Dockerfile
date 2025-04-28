@@ -25,6 +25,7 @@ FROM registry.cn-hangzhou.aliyuncs.com/nloves/node:18.20-alpine AS runner
 WORKDIR /home/app
 
 # 将构建输出复制到 runner 阶段
+COPY --from=builder /home/app/package*.json ./
 COPY --from=builder /home/app/.next /home/app/.next
 COPY --from=builder /home/app/public /home/app/public
 
